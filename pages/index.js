@@ -17,7 +17,7 @@ const Index = (props) => {
         <Layout.Section>
           
           <Card title="Order details" sectioned>
-            <Heading>Shopify app with Node and React 🎉</Heading>
+            <Heading>Shopify apps with Node and React 🎉</Heading>
             <p>View a summary of your order.</p>
           </Card>
         </Layout.Section>
