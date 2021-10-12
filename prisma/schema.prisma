@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE")
 }
 
 model faq {
@@ -49,10 +49,10 @@ model question {
 model user {
   id         Int      @id @default(autoincrement())
   created_at DateTime @default(now())
-  plan_id    Int
+  plan_id    Int?
   store      String   @unique(map: "User_store_key")
   updated_at DateTime
-  plan       plan     @relation(fields: [plan_id], references: [id], map: "User_plan_id_fkey")
+  plan       plan?    @relation(fields: [plan_id], references: [id], map: "User_plan_id_fkey")
   faq        faq[]
 
   @@index([plan_id], map: "User_plan_id_fkey")

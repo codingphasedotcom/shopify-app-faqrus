@@ -6,6 +6,10 @@ import Shopify, { ApiVersion } from "@shopify/shopify-api";
 import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
+import {PrismaClient} from '@prisma/client';
+
+
+const  {user} = new PrismaClient(); 
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -28,7 +32,7 @@ Shopify.Context.initialize({
 
 // Storing the currently active shops in memory will force them to re-login when your server restarts. You should
 // persist this object in your app.
-const ACTIVE_SHOPIFY_SHOPS = {};
+// const ACTIVE_SHOPIFY_SHOPS = {};
 
 app.prepare().then(async () => {
   const server = new Koa();
@@ -42,15 +46,21 @@ app.prepare().then(async () => {
         console.log(ctx.state)
         console.log(ctx.state.shopify)
         const host = ctx.query.host;
-        ACTIVE_SHOPIFY_SHOPS[shop] = scope;
+        // ACTIVE_SHOPIFY_SHOPS[shop] = scope;
+
+        const newUser = await user.upsert({
+          where:{ store: shop},
+          update: {store: shop, scope: scope, updated_at: new Date().toISOString()},
+          create: {store: shop, scope: scope, updated_at: new Date().toISOString()}
+        })
 
         const response = await Shopify.Webhooks.Registry.register({
           shop,
           accessToken,
           path: "/webhooks",
           topic: "APP_UNINSTALLED",
-          webhookHandler: async (topic, shop, body) =>
-            delete ACTIVE_SHOPIFY_SHOPS[shop],
+          webhookHandler: async (shop) =>
+            await user.delete({where: {shop: shop}}),
         });
 
         if (!response.success) {
@@ -92,10 +102,15 @@ app.prepare().then(async () => {
   router.get("/_next/webpack-hmr", handleRequest); // Webpack content is clear
   router.get("(.*)", async (ctx) => {
     const shop = ctx.query.shop;
-    console.log('ACTIVE_SHOPIFY_SHOPS')
-    console.log(ACTIVE_SHOPIFY_SHOPS)
+    // console.log('ACTIVE_SHOPIFY_SHOPS')
+    // console.log(ACTIVE_SHOPIFY_SHOPS)
+
+    const checkShop = await user.findFirst({
+      where: { store: shop}
+    })
+
     // This shop hasn't been seen yet, go through OAuth to create a session
-    if (ACTIVE_SHOPIFY_SHOPS[shop] === undefined) {
+    if (checkShop === null) {
       ctx.redirect(`/auth?shop=${shop}`);
     } else {
       await handleRequest(ctx);
