@@ -51,6 +51,7 @@ model user {
   created_at DateTime @default(now())
   plan_id    Int?
   store      String   @unique(map: "User_store_key")
+  scope      String
   updated_at DateTime
   plan       plan?    @relation(fields: [plan_id], references: [id], map: "User_plan_id_fkey")
   faq        faq[]
