@@ -8,15 +8,16 @@ datasource db {
 }
 
 model faq {
-  id         Int        @id @default(autoincrement())
-  title      String
-  slug       String     @unique(map: "Plan_slug_key")
-  dynamic    Boolean    @default(false)
-  user_id    Int
-  created_at DateTime   @default(now())
-  updated_at DateTime
-  user       user       @relation(fields: [user_id], references: [id], map: "FAQ_user_id_fkey")
-  question   question[]
+  id          Int        @id @default(autoincrement())
+  title       String
+  slug        String     @unique(map: "Plan_slug_key")
+  dynamic     Boolean    @default(false)
+  user_id     Int
+  description String
+  created_at  DateTime   @default(now())
+  updated_at  DateTime
+  user        user       @relation(fields: [user_id], references: [id], map: "FAQ_user_id_fkey")
+  question    question[]
 
   @@index([slug, id], map: "FAQ_slug_id_idx")
   @@index([user_id], map: "FAQ_user_id_fkey")
@@ -37,6 +38,7 @@ model question {
   id         Int      @id @default(autoincrement())
   title      String
   dynamic    Boolean  @default(false)
+  answer     String   @db.LongText
   faq_id     Int
   created_at DateTime @default(now())
   updated_at DateTime

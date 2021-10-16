@@ -9,7 +9,7 @@ import Router from "koa-router";
 import {PrismaClient} from '@prisma/client';
 
 
-const  {user} = new PrismaClient(); 
+const  {user, faq} = new PrismaClient(); 
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -92,6 +92,46 @@ app.prepare().then(async () => {
 
   router.post(
     "/graphql",
+    verifyRequest({ returnHeader: true }),
+    async (ctx, next) => {
+      await Shopify.Utils.graphqlProxy(ctx.req, ctx.res);
+    }
+  );
+
+  // FAQ Routes
+  router.post(
+    "/faq",
+    // verifyRequest({ returnHeader: true }),
+    async (ctx, next) => {
+      
+      let user_id = await user.findFirst({
+        where: { store: ctx.query.shop}
+      })
+      user_id = user_id.id
+      
+
+      const newFaq = await faq.create({
+        data: {
+          title: 'FAQ About Page',
+          slug: 'faq_about_page',
+          description: 'lorem ipsum testing description',
+          user_id: user_id,
+          dynamic: false,
+          updated_at: new Date().toISOString()
+        },
+      })
+      console.log(newFaq)
+    }
+  );
+  router.put(
+    "/faq/:id",
+    verifyRequest({ returnHeader: true }),
+    async (ctx, next) => {
+      await Shopify.Utils.graphqlProxy(ctx.req, ctx.res);
+    }
+  );
+  router.del(
+    "/faq/:id",
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
       await Shopify.Utils.graphqlProxy(ctx.req, ctx.res);
