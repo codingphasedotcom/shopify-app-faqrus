@@ -27,11 +27,25 @@ const FAQCreate = (props) => {
     (value) => setNewsletter(value),
     []
   );
+  
+  const [titleValue, setTitleValue] = useState('');
+  const handleTitleChange = (value) => setTitleValue(value);
 
-  const handleEmailChange = useCallback((value) => setEmail(value), []);
-  const [value, setValue] = useState('1776 Barnes Street\nOrlando, FL 32801');
+  const [descriptionValue, setDescriptionValue] = useState('');
+  const handleDescriptionChange = (value) => setDescriptionValue(value);
+  
 
   const handleChange = useCallback((newValue) => setValue(newValue), []);
+
+  const clickedBtn = () => {
+    console.log('clickedBtn')
+    props.authAxios.post('/faq', {
+      title: 'testing title',
+      description: 'testing description'
+    })
+    .then((response) => console.log(response))
+    .catch((error) => console.log(error))
+  }
   return (
     <Page
       breadcrumbs={[{ content: "Back", url: "/" }]}
@@ -46,10 +60,10 @@ const FAQCreate = (props) => {
               <FormLayout>
                 <TextField
                   value={email}
-                  onChange={handleEmailChange}
+                  onChange={handleTitleChange}
                   label="Title"
-                  type="email"
-                  autoComplete="email"
+                  type="text"
+                  value={titleValue}
                   helpText={
                     <span>
                       We’ll use this email address to inform you on future
@@ -59,13 +73,13 @@ const FAQCreate = (props) => {
                 />
                 <TextField
                   label="Description"
-                  value={""}
-                  onChange={handleChange}
+                  value={descriptionValue}
+                  onChange={handleDescriptionChange}
                   multiline={4}
                   autoComplete="off"
                 />
 
-                <Button submit>Submit</Button>
+                <Button onClick={clickedBtn}>Submit</Button>
               </FormLayout>
             </Form>
           </Card>

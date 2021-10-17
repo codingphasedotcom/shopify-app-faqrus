@@ -7,6 +7,8 @@ import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
 import {PrismaClient} from '@prisma/client';
+import bodyParser from 'koa-bodyparser';
+import slugify from "slugify";
 
 
 const  {user, faq} = new PrismaClient(); 
@@ -37,6 +39,7 @@ Shopify.Context.initialize({
 app.prepare().then(async () => {
   const server = new Koa();
   const router = new Router();
+  server.use(bodyParser());
   server.keys = [Shopify.Context.API_SECRET_KEY];
   server.use(
     createShopifyAuth({
@@ -101,9 +104,9 @@ app.prepare().then(async () => {
   // FAQ Routes
   router.post(
     "/faq",
-    // verifyRequest({ returnHeader: true }),
+    verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
-      
+      const {title, description} = ctx.request.body;
       let user_id = await user.findFirst({
         where: { store: ctx.query.shop}
       })
@@ -112,14 +115,19 @@ app.prepare().then(async () => {
 
       const newFaq = await faq.create({
         data: {
-          title: 'FAQ About Page',
-          slug: 'faq_about_page',
-          description: 'lorem ipsum testing description',
+          title: title,
+          slug: slugify(title, '_'),
+          description: description,
           user_id: user_id,
           dynamic: false,
           updated_at: new Date().toISOString()
         },
       })
+
+      return ctx.body = {
+        status: 'success',
+        data: newFaq
+      }
       console.log(newFaq)
     }
   );

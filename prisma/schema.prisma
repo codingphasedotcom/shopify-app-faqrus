@@ -10,7 +10,7 @@ datasource db {
 model faq {
   id          Int        @id @default(autoincrement())
   title       String
-  slug        String     @unique(map: "Plan_slug_key")
+  slug        String     @unique(map: "faq_slug_key")
   dynamic     Boolean    @default(false)
   user_id     Int
   description String
