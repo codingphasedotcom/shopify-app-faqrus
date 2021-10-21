@@ -52,12 +52,20 @@ model user {
   id         Int      @id @default(autoincrement())
   created_at DateTime @default(now())
   plan_id    Int?
-  store      String   @unique(map: "User_store_key")
+  shop       String   @unique(map: "User_shop_key")
   scope      String
   updated_at DateTime
   plan       plan?    @relation(fields: [plan_id], references: [id], map: "User_plan_id_fkey")
   faq        faq[]
 
   @@index([plan_id], map: "User_plan_id_fkey")
-  @@index([store], map: "User_store_idx")
+  @@index([shop], map: "User_shop_idx")
+}
+
+model AppSession {
+  id      String @id
+  shop    String
+  payload Json
+
+  @@map("app_session")
 }

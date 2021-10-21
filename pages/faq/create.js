@@ -40,8 +40,8 @@ const FAQCreate = (props) => {
   const clickedBtn = () => {
     console.log('clickedBtn')
     props.authAxios.post('/faq', {
-      title: 'testing title',
-      description: 'testing description'
+      title: titleValue,
+      description: descriptionValue
     })
     .then((response) => console.log(response))
     .catch((error) => console.log(error))
