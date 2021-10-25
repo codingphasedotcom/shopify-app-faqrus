@@ -193,12 +193,19 @@ app.prepare().then(async () => {
       console.log(newFaq)
     }
   );
-
   router.del(
     "/faq/:id",
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
-      await Shopify.Utils.graphqlProxy(ctx.req, ctx.res);
+      let deleteFAQ = await faq.delete({
+        where: { id: parseInt(ctx.params.id)}
+      })
+      
+
+      return ctx.body = {
+        status: 'success',
+        data: deleteFAQ
+      }
     }
   );
 

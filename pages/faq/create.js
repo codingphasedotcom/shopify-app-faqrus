@@ -31,9 +31,10 @@ const FAQCreate = (props) => {
     })
     .catch((error) => console.log(error))
   }
+  const clickedBackBtn = () => router.back();
   return (
     <Page
-      breadcrumbs={[{ content: "Back", url: "/" }]}
+      breadcrumbs={[{ content: "Back", onAction: () => clickedBackBtn() }]}
       title="Create FAQ"
       primaryAction={{ content: "Next", disabled: false, onAction: () => clickedNextBtn() }}
     >
