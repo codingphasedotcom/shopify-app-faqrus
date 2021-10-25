@@ -12,6 +12,7 @@ model faq {
   title       String
   slug        String     @unique(map: "faq_slug_key")
   dynamic     Boolean    @default(false)
+  status      String
   user_id     Int
   description String
   created_at  DateTime   @default(now())

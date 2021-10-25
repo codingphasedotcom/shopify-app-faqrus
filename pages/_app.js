@@ -8,6 +8,7 @@ import { Redirect } from "@shopify/app-bridge/actions";
 import "@shopify/polaris/dist/styles.css";
 import translations from "@shopify/polaris/locales/en.json";
 import axios from "axios";
+import {RoutePropagator} from '../components/RoutePropagator';
 
 function userLoggedInFetch(app) {
   const fetchFunction = authenticatedFetch(app);
@@ -33,14 +34,14 @@ function userLoggedInFetch(app) {
 
 function MyProvider(props) {
   const app = useAppBridge();
-  getSessionToken(app).then(token => console.log('token = ', token))
+  
   
   const authAxios = axios.create();
 
   authAxios.interceptors.request.use((config) => {
     return getSessionToken(app)
     .then((token) => {
-      console.log(token)
+      // console.log(token)
       config.headers["Authorization"] = `Bearer ${token}`;
       return config;
     })
@@ -75,6 +76,7 @@ class MyApp extends App {
             forceRedirect: true,
           }}
         >
+          <RoutePropagator />
           <MyProvider Component={Component} {...pageProps} />
         </Provider>
       </AppProvider>
@@ -82,11 +84,18 @@ class MyApp extends App {
   }
 }
 
-MyApp.getInitialProps = async ({ ctx }) => {
-  return {
-    host: ctx.query.host,
-  };
-};
+MyApp.getInitialProps = async (appContext) => {
+  const appProps = await App.getInitialProps(appContext);
+
+  return {...appProps, host: appContext.ctx.query.host}
+}
+
+
+// MyApp.getInitialProps = async ({ ctx }) => {
+//   return {
+//     host: ctx.query.host,
+//   };
+// };
 
 export default MyApp;
 

@@ -111,7 +111,7 @@ app.prepare().then(async () => {
     "/faq",
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
-      const {title, description} = ctx.request.body;
+      const {title, description, status} = ctx.request.body;
       let user_id = await user.findFirst({
         where: { shop: ctx.query.shop}
       })
@@ -123,6 +123,7 @@ app.prepare().then(async () => {
           title: title,
           slug: slugify(title, '-'),
           description: description,
+          status: status,
           user_id: user_id,
           dynamic: false,
           updated_at: new Date().toISOString()
@@ -136,13 +137,63 @@ app.prepare().then(async () => {
       console.log(newFaq)
     }
   );
+  router.get(
+    "/faq/:id",
+    verifyRequest({ returnHeader: true }),
+    async (ctx, next) => {
+      try {
+        let results = await faq.findFirst({
+          where: { id: parseInt(ctx.params.id)}
+        })
+
+        return ctx.body = {
+          status: 'success',
+          data: results
+        }
+      } catch (error) {
+        console.log(error)
+        return ctx.body = {
+          status: 'error',
+          message: 'FAQ not found'
+        }
+      }
+      
+    }
+  );
   router.put(
     "/faq/:id",
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
-      await Shopify.Utils.graphqlProxy(ctx.req, ctx.res);
+      const {title, description, status} = ctx.request.body;
+      let user_id = await user.findFirst({
+        where: { shop: ctx.query.shop}
+      })
+      user_id = user_id.id
+      
+
+      const newFaq = await faq.update({
+        where: {
+          id: parseInt(ctx.params.id)
+        },
+        data: {
+          title: title,
+          slug: slugify(title, '-'),
+          description: description,
+          status: status,
+          user_id: user_id,
+          dynamic: false,
+          updated_at: new Date().toISOString()
+        },
+      })
+
+      return ctx.body = {
+        status: 'success',
+        data: newFaq
+      }
+      console.log(newFaq)
     }
   );
+
   router.del(
     "/faq/:id",
     verifyRequest({ returnHeader: true }),
