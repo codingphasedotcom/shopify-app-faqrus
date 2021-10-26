@@ -111,7 +111,8 @@ app.prepare().then(async () => {
     "/faq",
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
-      const {title, description, status} = ctx.request.body;
+      try {
+        const {title, description, status} = ctx.request.body;
       let user_id = await user.findFirst({
         where: { shop: ctx.query.shop}
       })
@@ -134,6 +135,14 @@ app.prepare().then(async () => {
         status: 'success',
         data: newFaq
       }
+      } catch (error) {
+        console.log(error)
+        return ctx.body = {
+          status: 'error',
+          message: `FAQ can't be safed`
+        }
+      }
+      
       console.log(newFaq)
     }
   );
@@ -164,7 +173,8 @@ app.prepare().then(async () => {
     "/faq/:id",
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
-      const {title, description, status} = ctx.request.body;
+      try {
+        const {title, description, status} = ctx.request.body;
       let user_id = await user.findFirst({
         where: { shop: ctx.query.shop}
       })
@@ -190,17 +200,40 @@ app.prepare().then(async () => {
         status: 'success',
         data: newFaq
       }
-      console.log(newFaq)
+      } catch (error) {
+        console.log(error)
+        return ctx.body = {
+          status: 'error',
+          message: "Error Can't Edit FAQ"
+        }
+      }
     }
   );
-
   router.del(
     "/faq/:id",
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
-      await Shopify.Utils.graphqlProxy(ctx.req, ctx.res);
+      try {
+        const delFaq = await faq.delete({
+          where: {
+            id: parseInt(ctx.params.id)
+          }
+        })
+  
+        return ctx.body = {
+          status: 'success',
+          data: delFaq
+        }
+      } catch (error) {
+        console.log(error)
+        return ctx.body = {
+          status: 'error',
+          message: "Error Can't Delete FAQ"
+        }
+      }
     }
   );
+
 
   router.get("(/_next/static/.*)", handleRequest); // Static content is clear
   router.get("/_next/webpack-hmr", handleRequest); // Webpack content is clear
