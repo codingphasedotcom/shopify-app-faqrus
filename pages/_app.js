@@ -45,7 +45,19 @@ function MyProvider(props) {
       config.headers["Authorization"] = `Bearer ${token}`;
       return config;
     })
+  })
 
+  authAxios.interceptors.response.use((response) => {
+    return response
+  }, async function (error) {
+    const originalRequest = error.config;
+
+    if(error.response.status === 403 && !originalRequest._retry) {
+      console.log('HIT ERROR')
+      const redirect = Redirect.create(app)
+      redirect.dispatch(Redirect.Action.APP, '/auth' || '/auth')
+    }
+    return Promise.reject(error)
   })
 
   const client = new ApolloClient({

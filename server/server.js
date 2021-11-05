@@ -26,7 +26,7 @@ Shopify.Context.initialize({
   API_KEY: process.env.SHOPIFY_API_KEY,
   API_SECRET_KEY: process.env.SHOPIFY_API_SECRET,
   SCOPES: process.env.SCOPES.split(","),
-  HOST_NAME: process.env.HOST.replace(/https:\/\//, ""),
+  HOST_NAME: process.env.HOSTLOCAL.replace(/https:\/\//, ""),
   API_VERSION: ApiVersion.October20,
   IS_EMBEDDED_APP: true,
   // This should be replaced with your preferred storage strategy
@@ -107,6 +107,40 @@ app.prepare().then(async () => {
   );
 
   // FAQ Routes
+  router.get(
+    "/faq",
+    verifyRequest({ returnHeader: true }),
+    async (ctx, next) => {
+      try {
+      let user_id = await user.findFirst({
+        where: { shop: ctx.query.shop}
+      })
+      user_id = user_id.id
+      
+      const response = await faq.findMany({
+        where: {
+          user_id: user_id
+        },
+        orderBy: {
+          created_at: 'desc'
+        }
+      })
+
+      return ctx.body = {
+        status: 'success',
+        data: response
+      }
+      } catch (error) {
+        console.log(error)
+        return ctx.body = {
+          status: 'error',
+          message: `FAQ can't be safed`
+        }
+      }
+      
+      console.log(newFaq)
+    }
+  );
   router.post(
     "/faq",
     verifyRequest({ returnHeader: true }),
