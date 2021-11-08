@@ -60,7 +60,7 @@ const FAQEditPage = (props) => {
   };
 
   const toastMarkup = showToast ? (
-    <Toast content="Message sent" onDismiss={() => setShowToast(!showToast)} />
+    <Toast content="FAQ Updated" onDismiss={() => setShowToast(!showToast)} />
   ) : null;
 
   const clickedBackBtn = () => router.push("/");

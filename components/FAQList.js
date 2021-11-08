@@ -3,11 +3,9 @@ import {
   Page,
   Card,
   Layout,
-  EmptyState,
-  DataTable,
-  Link
+  DataTable
 } from "@shopify/polaris";
-Link
+import Link from 'next/link';
 import { Provider, TitleBar } from "@shopify/app-bridge-react";
 import { useRouter } from "next/router";
 
@@ -18,21 +16,22 @@ const FAQList = (props) => {
   const clickedCreateBtn = () => {
     router.push('/faq/create')
   }
-  const initiallySortedRows = [
-    [
-      <Link
-        removeUnderline
-        url="/faq/1"
-        key="emerald-silk-gown"
-      >
-        About Page FAQ
-      </Link>,
-      'Dynamic',
-      '12-04-2021',
-      '12-04-2021',
-    ],
+  const initiallySortedRows = props.FAQData.map((item) => {
     
-  ];
+      return [
+        <Link
+          href={`/faq/${item.id}/edit`}
+          key={item.slug}
+        >
+          {item.title}
+        </Link>,
+        (item.status) ? 'Dynamic' : 'fixed',
+        `${item.created_at}`,
+        `${item.updated_at}`,
+      ]
+    }
+  );
+ 
 
   const rows = sortedRows ? sortedRows : initiallySortedRows;
   const handleSort = useCallback(
