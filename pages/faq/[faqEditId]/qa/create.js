@@ -1,55 +1,54 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import {
-  Heading,
   Page,
   Card,
   Layout,
   FormLayout,
   TextField,
-  EmptyState,
-  DataTable,
-  rows,
   Form,
   Button,
 } from "@shopify/polaris";
-import { Provider, TitleBar } from "@shopify/app-bridge-react";
+import { TitleBar } from "@shopify/app-bridge-react";
+import { useRouter } from "next/router";
 
-const QACreate = (props) => {
-  const [newsletter, setNewsletter] = useState(false);
-  const [email, setEmail] = useState("");
+const QACreatePage = (props) => {
+  const router = useRouter();
+  const [titleValue, setTitleValue] = useState('');
+  const handleTitleChange = (value) => setTitleValue(value);
 
-  const handleSubmit = useCallback((_event) => {
-    setEmail("");
-    setNewsletter(false);
-  }, []);
+  const [answerValue, setAnswerValue] = useState('');
+  const handleAnswerChange = (value) => setAnswerValue(value);
 
-  const handleNewsLetterChange = useCallback(
-    (value) => setNewsletter(value),
-    []
-  );
-
-  const handleEmailChange = useCallback((value) => setEmail(value), []);
-  const [value, setValue] = useState('1776 Barnes Street\nOrlando, FL 32801');
-
-  const handleChange = useCallback((newValue) => setValue(newValue), []);
+  const clickedNextBtn = () => {
+    props.authAxios.post(`/faq/${props.faqEditId}/qa`, {
+      title: titleValue,
+      answer: answerValue,
+      status: 'draft'
+    })
+    .then((response) => {
+      console.log(response)
+      router.push(`/faq/${props.faqEditId}/edit`)
+    })
+    .catch((error) => console.log(error))
+  }
+  const clickedBackBtn = () => router.back();
   return (
     <Page
-      breadcrumbs={[{ content: "Back", url: "/" }]}
-      title="Create New Question and Answer"
-      primaryAction={{ content: "Save", disabled: false }}
+      breadcrumbs={[{ content: "Back", onAction: () => clickedBackBtn() }]}
+      title="Create QA"
+      primaryAction={{ content: "Next", disabled: false, onAction: () => clickedNextBtn() }}
     >
-      <TitleBar title="Create Question and Answer" />
+      <TitleBar title="Create QA" />
       <Layout>
         <Layout.Section>
           <Card sectioned>
-            <Form onSubmit={handleSubmit}>
+            <Form>
               <FormLayout>
                 <TextField
-                  value={email}
-                  onChange={handleEmailChange}
-                  label="Question"
-                  type="email"
-                  autoComplete="email"
+                  onChange={handleTitleChange}
+                  label="Title"
+                  type="text"
+                  value={titleValue}
                   helpText={
                     <span>
                       We’ll use this email address to inform you on future
@@ -59,13 +58,12 @@ const QACreate = (props) => {
                 />
                 <TextField
                   label="Answer"
-                  value={""}
-                  onChange={handleChange}
+                  value={answerValue}
+                  onChange={handleAnswerChange}
                   multiline={4}
                   autoComplete="off"
                 />
 
-                <Button submit>Submit</Button>
               </FormLayout>
             </Form>
           </Card>
@@ -74,5 +72,9 @@ const QACreate = (props) => {
     </Page>
   );
 };
+QACreatePage.getInitialProps = async (ctx) => {
+  return { faqEditId: ctx.query.faqEditId };
+};
 
-export default QACreate;
+
+export default QACreatePage;

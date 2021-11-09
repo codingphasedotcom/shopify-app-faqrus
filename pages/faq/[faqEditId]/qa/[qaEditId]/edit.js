@@ -14,7 +14,7 @@ import {
 } from "@shopify/polaris";
 import { Provider, TitleBar } from "@shopify/app-bridge-react";
 
-const QAEdit = (props) => {
+const QAEditPage = (props) => {
   const [newsletter, setNewsletter] = useState(false);
   const [email, setEmail] = useState("");
 
@@ -75,4 +75,8 @@ const QAEdit = (props) => {
   );
 };
 
-export default QAEdit;
+QAEditPage.getInitialProps = async (ctx) => {
+  return { faqEditId: ctx.query.faqEditId };
+};
+
+export default QAEditPage;

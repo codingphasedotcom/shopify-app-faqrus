@@ -12,7 +12,7 @@ import bodyParser from 'koa-bodyparser';
 import slugify from "slugify";
 
 
-const  {user, faq, appSession} = new PrismaClient(); 
+const  {user, faq, qa, appSession} = new PrismaClient(); 
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -107,6 +107,7 @@ app.prepare().then(async () => {
   );
 
   // FAQ Routes
+  //GET ALL FAQ
   router.get(
     "/faq",
     verifyRequest({ returnHeader: true }),
@@ -141,6 +142,7 @@ app.prepare().then(async () => {
       console.log(newFaq)
     }
   );
+  //SAVE SINGLE FAQ
   router.post(
     "/faq",
     verifyRequest({ returnHeader: true }),
@@ -180,13 +182,14 @@ app.prepare().then(async () => {
       console.log(newFaq)
     }
   );
+  //GET SINGLE FAQ
   router.get(
-    "/faq/:id",
+    "/faq/:faqId",
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
       try {
         let results = await faq.findFirst({
-          where: { id: parseInt(ctx.params.id)}
+          where: { id: parseInt(ctx.params.faqId)}
         })
 
         return ctx.body = {
@@ -203,8 +206,9 @@ app.prepare().then(async () => {
       
     }
   );
+  //UPDATE SINGLE FAQ
   router.put(
-    "/faq/:id",
+    "/faq/:faqId",
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
       try {
@@ -217,7 +221,7 @@ app.prepare().then(async () => {
 
       const newFaq = await faq.update({
         where: {
-          id: parseInt(ctx.params.id)
+          id: parseInt(ctx.params.faqId)
         },
         data: {
           title: title,
@@ -243,14 +247,15 @@ app.prepare().then(async () => {
       }
     }
   );
+  //DELETE SINGLE FAQ
   router.del(
-    "/faq/:id",
+    "/faq/:faId",
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
       try {
         const delFaq = await faq.delete({
           where: {
-            id: parseInt(ctx.params.id)
+            id: parseInt(ctx.params.faqId)
           }
         })
   
@@ -267,6 +272,176 @@ app.prepare().then(async () => {
       }
     }
   );
+
+// FAQ Routes
+//GET ALL QA
+router.get(
+  "/faq/:faqId",
+  verifyRequest({ returnHeader: true }),
+  async (ctx, next) => {
+    try {
+    let user_id = await user.findFirst({
+      where: { shop: ctx.query.shop}
+    })
+    user_id = user_id.id
+    
+    const response = await faq.findMany({
+      where: {
+        user_id: user_id
+      },
+      orderBy: {
+        created_at: 'desc'
+      }
+    })
+
+    return ctx.body = {
+      status: 'success',
+      data: response
+    }
+    } catch (error) {
+      console.log(error)
+      return ctx.body = {
+        status: 'error',
+        message: `FAQ can't be safed`
+      }
+    }
+    
+    console.log(newFaq)
+  }
+);
+//SAVE SINGLE QA
+router.post(
+  "/faq/:faqId/qa",
+  verifyRequest({ returnHeader: true }),
+  async (ctx, next) => {
+    try {
+      const {title, description, status} = ctx.request.body;
+    let user_id = await user.findFirst({
+      where: { shop: ctx.query.shop}
+    })
+    user_id = user_id.id
+    
+
+    const newFaq = await faq.create({
+      data: {
+        title: title,
+        slug: slugify(title, '-'),
+        description: description,
+        status: status,
+        user_id: user_id,
+        dynamic: false,
+        updated_at: new Date().toISOString()
+      },
+    })
+
+    return ctx.body = {
+      status: 'success',
+      data: newFaq
+    }
+    } catch (error) {
+      console.log(error)
+      return ctx.body = {
+        status: 'error',
+        message: `FAQ can't be safed`
+      }
+    }
+    
+    console.log(newFaq)
+  }
+);
+//GET SINGLE QA
+router.get(
+  "/faq/:faqId/qa/:qaId",
+  verifyRequest({ returnHeader: true }),
+  async (ctx, next) => {
+    try {
+      let results = await faq.findFirst({
+        where: { id: parseInt(ctx.params.faqId)}
+      })
+
+      return ctx.body = {
+        status: 'success',
+        data: results
+      }
+    } catch (error) {
+      console.log(error)
+      return ctx.body = {
+        status: 'error',
+        message: 'FAQ not found'
+      }
+    }
+    
+  }
+);
+//UPDATE SINGLE QA
+router.put(
+  "/faq/:faqId/qa/:qaId",
+  verifyRequest({ returnHeader: true }),
+  async (ctx, next) => {
+    try {
+      const {title, description, status} = ctx.request.body;
+    let user_id = await user.findFirst({
+      where: { shop: ctx.query.shop}
+    })
+    user_id = user_id.id
+    
+
+    const newFaq = await faq.update({
+      where: {
+        id: parseInt(ctx.params.faqId)
+      },
+      data: {
+        title: title,
+        slug: slugify(title, '-'),
+        description: description,
+        status: status,
+        user_id: user_id,
+        dynamic: false,
+        updated_at: new Date().toISOString()
+      },
+    })
+
+    return ctx.body = {
+      status: 'success',
+      data: newFaq
+    }
+    } catch (error) {
+      console.log(error)
+      return ctx.body = {
+        status: 'error',
+        message: "Error Can't Edit FAQ"
+      }
+    }
+  }
+);
+//DELETE SINGLE QA
+router.del(
+  "/faq/:faId/qa/:qaId",
+  verifyRequest({ returnHeader: true }),
+  async (ctx, next) => {
+    try {
+      const delFaq = await faq.delete({
+        where: {
+          id: parseInt(ctx.params.faqId)
+        }
+      })
+
+      return ctx.body = {
+        status: 'success',
+        data: delFaq
+      }
+    } catch (error) {
+      console.log(error)
+      return ctx.body = {
+        status: 'error',
+        message: "Error Can't Delete FAQ"
+      }
+    }
+  }
+);
+
+
+
 
 
   router.get("(/_next/static/.*)", handleRequest); // Static content is clear
