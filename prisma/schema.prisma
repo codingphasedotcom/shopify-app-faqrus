@@ -38,14 +38,17 @@ model plan {
 model question {
   id         Int      @id @default(autoincrement())
   title      String
-  dynamic    Boolean  @default(false)
   answer     String   @db.LongText
   faq_id     Int
+  user_id    Int
+  views      Int      @default(0)
   created_at DateTime @default(now())
   updated_at DateTime
+  user       user     @relation(fields: [user_id], references: [id], map: "Question_user_id_fkey")
   faq        faq      @relation(fields: [faq_id], references: [id], map: "Question_faq_id_fkey")
 
   @@index([faq_id], map: "Question_faq_id_fkey")
+  @@index([user_id], map: "Question_user_id_fkey")
   @@index([id], map: "Question_id_idx")
 }
 
@@ -58,6 +61,7 @@ model user {
   updated_at DateTime
   plan       plan?    @relation(fields: [plan_id], references: [id], map: "User_plan_id_fkey")
   faq        faq[]
+  question   question[]
 
   @@index([plan_id], map: "User_plan_id_fkey")
   @@index([shop], map: "User_shop_idx")
