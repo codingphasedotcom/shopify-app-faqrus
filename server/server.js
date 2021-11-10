@@ -12,7 +12,7 @@ import bodyParser from 'koa-bodyparser';
 import slugify from "slugify";
 
 
-const  {user, faq, qa, appSession} = new PrismaClient(); 
+const  {user, faq, question, appSession} = new PrismaClient(); 
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -323,11 +323,12 @@ app.prepare().then(async () => {
       user_id = user_id.id
       
 
-      const newQa= await qa.create({
+      const newQA = await question.create({
         data: {
           title: title,
           answer: answer,
-          user_id: user_id,
+          user: { connect: { id: user_id } },
+          faq: { connect: { id: parseInt(ctx.params.faqId) } },
           views: 0,
           updated_at: new Date().toISOString()
         },
@@ -354,7 +355,7 @@ app.prepare().then(async () => {
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
       try {
-        let results = await qa.findFirst({
+        let results = await question.findFirst({
           where: { id: parseInt(ctx.params.qaId)}
         })
 
@@ -385,7 +386,7 @@ app.prepare().then(async () => {
       user_id = user_id.id
       
 
-      const updateQa = await qa.update({
+      const updateQa = await question.update({
         where: {
           id: parseInt(ctx.params.qaId)
         },
@@ -417,7 +418,7 @@ app.prepare().then(async () => {
     verifyRequest({ returnHeader: true }),
     async (ctx, next) => {
       try {
-        const delQa = await qa.delete({
+        const delQa = await question.delete({
           where: {
             id: parseInt(ctx.params.qaId)
           }

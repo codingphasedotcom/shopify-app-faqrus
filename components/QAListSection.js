@@ -6,14 +6,16 @@ import {
   Button
 } from "@shopify/polaris";
 import Link from 'next/link'
+import { useRouter } from "next/router";
 
 
 const QAListSection = (props) => {
+  
   const [QAListLoaded, setQAListLoaded] = useState(true);
 
-  return <>{QAListLoaded ? <QAList /> : <EmptyList /> }</>;
+  return <>{QAListLoaded ? <QAList faqEditId={props.faqEditId} /> : <EmptyList faqEditId={props.faqEditId} /> }</>;
 };
-const EmptyList = () => {
+const EmptyList = (props) => {
   return(
     <CalloutCard
           title="Customize the style of your checkout"
@@ -27,8 +29,8 @@ const EmptyList = () => {
         </CalloutCard>
   )
 }
-const QAList = () => {
-  
+const QAList = (props) => {
+  const router = useRouter();
   const [sortedRows, setSortedRows] = useState(null);
 
   const initiallySortedRows = [
@@ -56,6 +58,9 @@ const QAList = () => {
     (index, direction) => setSortedRows(sortCurrency(rows, index, direction)),
     [rows],
   );
+  const clickedCreateQA = () => {
+    router.push(`/faq/${props.faqEditId}/qa/create`)
+  }
   return(
     <Card title="Questions and Answers">
           <DataTable
@@ -72,7 +77,7 @@ const QAList = () => {
             defaultSortDirection="descending"
             initialSortColumnIndex={4}
             onSort={handleSort}
-            footerContent={<Button primary>Add Another QA</Button>}
+            footerContent={<Button primary onClick={clickedCreateQA}>Add Another QA</Button>}
           />
         </Card>
   )

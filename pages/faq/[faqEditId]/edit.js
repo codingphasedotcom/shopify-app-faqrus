@@ -136,7 +136,7 @@ const FAQEditPage = (props) => {
               </Form>
             </Card>
 
-            <QAListSection />
+            <QAListSection faqEditId={props.faqEditId} />
           </Layout.Section>
           <Layout.Section secondary>
             <Card title="Status" sectioned>

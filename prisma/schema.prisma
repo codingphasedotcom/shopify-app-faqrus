@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE")
 }
 
-model faq {
+model Faq {
   id          Int        @id @default(autoincrement())
   title       String
   slug        String     @unique(map: "faq_slug_key")
@@ -17,25 +17,25 @@ model faq {
   description String
   created_at  DateTime   @default(now())
   updated_at  DateTime
-  user        user       @relation(fields: [user_id], references: [id], map: "FAQ_user_id_fkey")
-  question    question[]
+  user        User       @relation(fields: [user_id], references: [id], map: "FAQ_user_id_fkey")
+  question    Question[]
 
   @@index([slug, id], map: "FAQ_slug_id_idx")
   @@index([user_id], map: "FAQ_user_id_fkey")
 }
 
-model plan {
+model Plan {
   id         Int      @id @default(autoincrement())
   title      String
   slug       String   @unique(map: "Plan_slug_key")
   created_at DateTime @default(now())
   updated_at DateTime
-  user       user[]
+  user       User[]
 
   @@index([slug, id], map: "Plan_slug_id_idx")
 }
 
-model question {
+model Question {
   id         Int      @id @default(autoincrement())
   title      String
   answer     String   @db.LongText
@@ -44,24 +44,24 @@ model question {
   views      Int      @default(0)
   created_at DateTime @default(now())
   updated_at DateTime
-  user       user     @relation(fields: [user_id], references: [id], map: "Question_user_id_fkey")
-  faq        faq      @relation(fields: [faq_id], references: [id], map: "Question_faq_id_fkey")
+  user       User     @relation(fields: [user_id], references: [id], map: "Question_user_id_fkey")
+  faq        Faq      @relation(fields: [faq_id], references: [id], map: "Question_faq_id_fkey")
 
   @@index([faq_id], map: "Question_faq_id_fkey")
   @@index([user_id], map: "Question_user_id_fkey")
   @@index([id], map: "Question_id_idx")
 }
 
-model user {
+model User {
   id         Int      @id @default(autoincrement())
   created_at DateTime @default(now())
   plan_id    Int?
   shop       String   @unique(map: "User_shop_key")
   scope      String
   updated_at DateTime
-  plan       plan?    @relation(fields: [plan_id], references: [id], map: "User_plan_id_fkey")
-  faq        faq[]
-  question   question[]
+  plan       Plan?    @relation(fields: [plan_id], references: [id], map: "User_plan_id_fkey")
+  faq        Faq[]
+  question   Question[]
 
   @@index([plan_id], map: "User_plan_id_fkey")
   @@index([shop], map: "User_shop_idx")
