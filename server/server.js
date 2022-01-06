@@ -286,7 +286,7 @@ app.prepare().then(async () => {
       })
       user_id = user_id.id
       
-      const response = await qa.findMany({
+      const response = await question.findMany({
         where: {
           faq_id: parseInt(ctx.params.faqId)
         },
