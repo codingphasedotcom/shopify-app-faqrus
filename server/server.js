@@ -12,7 +12,7 @@ import bodyParser from 'koa-bodyparser';
 import slugify from "slugify";
 
 
-const  {user, faq, question, appSession} = new PrismaClient(); 
+const  {user, faq, question,  appSession} = new PrismaClient(); 
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -286,7 +286,7 @@ app.prepare().then(async () => {
       })
       user_id = user_id.id
       
-      const response = await qa.findMany({
+      const response = await question.findMany({
         where: {
           faq_id: parseInt(ctx.params.faqId)
         },

@@ -15,10 +15,12 @@ import {
 import { TitleBar } from "@shopify/app-bridge-react";
 import QAListSection from "../../../components/QAListSection";
 import { useRouter } from "next/router";
+import { Spinner } from  '@shopify/polaris';
+
 
 const FAQEditPage = (props) => {
   const router = useRouter();
-  const { faqEditId } = props;
+  const {faqEditId } = props;
 
   const [titleValue, setTitleValue] = useState("");
   const handleTitleChange = (value) => setTitleValue(value);
@@ -27,6 +29,8 @@ const FAQEditPage = (props) => {
   const [statusValue, setStatusValue] = useState("draft");
   const handleStatusChange = (value) => setStatusValue(value);
   const [showToast, setShowToast] = useState(false);
+  const [qaData, setQAData] = useState([]);
+  const [loadingQAData, setLoadingQAData] = useState(true);
 
   useEffect(() => {
     props.authAxios
@@ -40,7 +44,20 @@ const FAQEditPage = (props) => {
         console.log(error)
         router.push(`/`)
       });
-  }, []);
+
+      props.authAxios
+        .get(`/faq/${faqEditId}/qa`)
+        .then((response) => {
+          setQAData(response.data.data)
+          setLoadingQAData(false)
+
+          console.log(response.data.data)
+        })
+        .catch((error) => {
+          console.log(error)
+          // router.push(`/`)
+        });
+  }, [loadingQAData]);
 
   const clickedNextBtn = () => {
     console.log("clicked next button");
@@ -136,7 +153,23 @@ const FAQEditPage = (props) => {
               </Form>
             </Card>
 
-            <QAListSection faqEditId={props.faqEditId} />
+
+            {
+        loadingQAData ? (
+          <div style={{
+            display: "flex",
+            width: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '400px'
+          }}>
+            <Spinner accessibilityLabel="loading data" size="large" />
+          </div>
+        ) : (
+          <QAListSection faqEditId={props.faqEditId} qaData={qaData} />
+        )
+      }
+            
           </Layout.Section>
           <Layout.Section secondary>
             <Card title="Status" sectioned>
